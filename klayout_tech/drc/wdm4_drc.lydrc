@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description>WDM4 design-rule check (placeholder values, confirm against the CORNERSTONE manual)</description>
+ <category>drc</category>
+ <autorun>false</autorun>
+ <show-in-menu>true</show-in-menu>
+ <menu-path>tools_menu.drc.end</menu-path>
+ <interpreter>dsl</interpreter>
+ <dsl-interpreter-name>drc-dsl-xml</dsl-interpreter-name>
+ <text># WDM4 DRC. Every number below is a PLACEHOLDER until read from the CORNERSTONE
+# design manual for the MPW call you submit to. Change the number, not the rule.
+
+source($input) if $input
+report("WDM4 DRC", $report || "wdm4_drc.lyrdb")
+
+wg     = input(3, 0)     # silicon waveguide, full etch
+gra    = input(6, 0)     # shallow grating etch
+heater = input(39, 0)    # TiN heater
+metal  = input(41, 0)    # aluminium pads and wires
+fp     = input(99, 0)    # floorplan (not fabricated)
+
+# --- silicon ---
+wg.width(0.35.um).output("WG width &lt; 350 nm", "silicon feature narrower than the placeholder minimum")
+wg.space(0.20.um).output("WG spacing &lt; 200 nm", "two silicon features closer than the placeholder minimum")
+gra.width(0.20.um).output("GRA width &lt; 200 nm", "grating tooth narrower than the placeholder minimum")
+(gra - wg).output("GRA outside WG", "shallow etch drawn where there is no silicon under it")
+
+# --- metal ---
+heater.width(2.0.um).output("HEATER width &lt; 2 um", "heater narrower than the placeholder minimum")
+heater.space(2.0.um).output("HEATER spacing &lt; 2 um", "heater features closer than the placeholder minimum")
+metal.width(5.0.um).output("METAL width &lt; 5 um", "pad-layer feature narrower than the placeholder minimum")
+metal.space(5.0.um).output("METAL spacing &lt; 5 um", "pad-layer features closer than the placeholder minimum")
+
+# --- metal near silicon: wires may cross a waveguide, but must not run beside one ---
+# crossing = overlap region; a long parallel run shows up as a large overlap area.
+big = (metal &amp; wg).with_area(20.0, nil)
+big.output("METAL over WG, area &gt; 20 um2", "metal runs along a waveguide instead of crossing it")
+
+# --- everything inside the floorplan, with the edge keep-out ---
+inner = fp.sized(-150.0.um)
+(wg + gra + heater + metal).not_inside(inner).output("outside keep-out", "feature closer than 150 um to the die edge (placeholder)")
+
+# --- angles: only 0/45/90 degree edges except on curves (informational) ---
+wg.with_angle(0, 90).count  # noop, keeps the DRC engine warm; angle rules come from the manual
+</text>
+</klayout-macro>

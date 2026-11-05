@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.DS_Store
+*.bak*
+*.lyrdb
+klayout_tech/tech.lyt.lyt
+# intermediate layouts: every script regenerates its own
+gds/*
+!gds/step16_chip_split.gds
+!gds/mzi_die.gds
+!gds/cell0_wdm4_mzi4.gds
+# 3D export output
+wdm4-3d.json
+mzi-3d.json

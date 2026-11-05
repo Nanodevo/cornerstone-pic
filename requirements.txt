@@ -1,0 +1,11 @@
+# Layout, rule check and circuit simulation (Python 3.11-3.13)
+cspdk==1.4.2
+gdsfactory==9.34.2
+kfactory==2.4.7
+klayout==0.30.12
+sax==0.16.14
+matplotlib==3.11.1
+numpy==2.2.0
+shapely==2.1.2
+# The mode-solver scripts (step15b_coupling.py, step18_modes.py) need femwell 0.1.12 in a
+# separate environment, because its dependencies conflict with the versions above.

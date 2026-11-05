@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description>CORNERSTONE 220 nm SOI design rules (MPW #45 guidelines, April 2025, Table 2 and section 5.3)</description>
+ <category>drc</category>
+ <autorun>false</autorun>
+ <show-in-menu>true</show-in-menu>
+ <menu-path>tools_menu.drc.end</menu-path>
+ <interpreter>dsl</interpreter>
+ <dsl-interpreter-name>drc-dsl-xml</dsl-interpreter-name>
+ <text># CORNERSTONE 220 nm SOI passive MPW: the rules of the design guidelines for call #45 (April 2025),
+# Table 2 (minimum feature sizes and gaps) and section 5.3 (overlaps). Re-read the guidelines of the
+# call you submit to; section 2 of each document lists what changed.
+
+source($input) if $input
+report("CORNERSTONE 220 nm DRC", $report || "cornerstone_220_drc.lyrdb")
+
+wg     = input(3, 0)     # Silicon Etch 3, light field: waveguides (120 nm etch, then 100 nm to BOX outside rib protect)
+wg4    = input(4, 0)     # Silicon Etch 3, dark field
+gra    = input(6, 0)     # Silicon Etch 2, dark field: DUV grating couplers, 70 nm etch
+gra60  = input(60, 0)    # Silicon Etch 1, dark field: e-beam grating couplers, 94 nm etch
+rib    = input(5, 0)     # Silicon Etch 4, light field: rib protect
+heater = input(39, 0)    # heater filaments, light field
+metal  = input(41, 0)    # heater contact pads, light field
+cell   = input(99, 0)    # cell outline
+
+# --- Table 2: minimum feature sizes and gaps ---
+wg.width(0.35.um).output("WG width &lt; 350 nm", "layer 3 feature narrower than the 350 nm minimum")
+wg.space(0.20.um).output("WG spacing &lt; 200 nm", "layer 3 features closer than the 200 nm minimum")
+wg4.width(0.20.um).output("WG4 width &lt; 200 nm", "layer 4 feature narrower than the 200 nm minimum")
+wg4.space(0.35.um).output("WG4 spacing &lt; 350 nm", "layer 4 features closer than the 350 nm minimum")
+gra.width(0.20.um).output("GRA width &lt; 200 nm", "grating feature narrower than the 200 nm minimum")
+gra.space(0.25.um).output("GRA spacing &lt; 250 nm", "grating features closer than the 250 nm minimum (350 nm applies to features longer than 20 um)")
+gra.edges.with_length(20.0.um, nil).output("GRA feature &gt; 20 um", "grating feature longer than the 20 um maximum")
+gra60.width(0.06.um).output("GRA60 width &lt; 60 nm", "e-beam grating feature narrower than 60 nm")
+gra60.space(0.06.um).output("GRA60 spacing &lt; 60 nm", "e-beam grating features closer than 60 nm")
+rib.width(0.25.um).output("RIB width &lt; 250 nm", "rib protect feature narrower than 250 nm")
+rib.space(0.25.um).output("RIB spacing &lt; 250 nm", "rib protect features closer than 250 nm")
+heater.width(0.6.um).output("HEATER width &lt; 600 nm", "heater filament narrower than the 600 nm minimum (900 nm recommended)")
+heater.space(10.0.um).output("HEATER spacing &lt; 10 um", "heater features closer than the 10 um minimum")
+metal.width(2.0.um).output("PAD width &lt; 2 um", "contact-pad metal narrower than the 2 um minimum")
+metal.space(10.0.um).output("PAD spacing &lt; 10 um", "contact-pad metal features closer than the 10 um minimum")
+
+# --- section 5.3: overlaps and exclusions ---
+(gra - wg).output("GRA outside WG", "grating feature drawn where there is no waveguide silicon under it")
+(gra &amp; wg).width(0.2.um).output("GRA/WG overlap &lt; 200 nm", "grating feature overlaps the waveguide layer by less than 200 nm")
+(gra60 - wg).output("GRA60 outside WG", "e-beam grating feature drawn where there is no waveguide silicon under it")
+(gra &amp; heater).output("GRA over HEATER", "grating features must not overlap heater filaments")
+(gra &amp; metal).output("GRA over PAD", "grating features must not overlap contact-pad metal")
+(heater &amp; metal).without_bbox_width(10.0.um, nil).without_bbox_height(10.0.um, nil).output("HEATER/PAD overlap &lt; 10 um", "a heater-to-pad contact shorter than the recommended 10 um in both directions")
+(wg + wg4 + gra + gra60 + rib + heater + metal).not_inside(cell).output("Outside the cell", "feature outside the cell outline (layer 99)")
+
+# Not encoded: the recommendation of a 5 um spacing between waveguides (section 5.3), which the MMI ports cannot meet by construction.
+</text>
+</klayout-macro>
