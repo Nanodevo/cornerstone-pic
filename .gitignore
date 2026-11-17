@@ -12,3 +12,4 @@ gds/*
 # 3D export output
 wdm4-3d.json
 mzi-3d.json
+sources/
