@@ -28,7 +28,7 @@ for cellname, n in net.items():
     n["nets"] = [nt for nt in n.get("nets", []) if all(optical(ref_of(v)) for v in nt.values())]
 
 circuit, info = sax.circuit(net, models=models)
-wl = jnp.linspace(1.545, 1.560, 3001)
+wl = jnp.linspace(1.542, 1.562, 10001)                # 2 pm steps
 S = circuit(wl=wl)
 dB = lambda x: 10 * np.log10(np.abs(np.asarray(x)) ** 2 + 1e-30)
 lb = dB(S[("lb1", "lb2")])
@@ -55,4 +55,21 @@ for j, gap in enumerate(GAPS, start=1):
     fwhm = w[hi] - w[lo]                                   # contiguous 3 dB width around this peak only
     t1_at_2 = (dB(S[(f"b{j}_in", f"b{j}_d1")]) - lb)[i]
     print(f"bank {j} (gap {gap:.2f}): drop2 peak {peak:.2f} dB at {w[i]:.2f} nm, 3 dB width {fwhm:.3f} nm, neighbour d1 at that wavelength {t1_at_2:.1f} dB")
+    peaks = []
+    for n in ("d1", "d2", "d3", "d4"):
+        t = dB(S[(f"b{j}_in", f"b{j}_{n}")]) - lb
+        sel = (w > 1548.0) & (w < 1555.0); peaks.append(w[sel][int(np.argmax(t[sel]))])
+    others = sum(10 ** ((dB(S[(f"b{j}_in", f"b{j}_d1")]) - lb)[np.argmin(abs(w - p))] / 10) for p in peaks[1:])
+    print(f"   drop peaks {[round(p, 2) for p in peaks]} nm, spacings {[round(b - a, 2) for a, b in zip(peaks, peaks[1:])]} nm; "
+          f"channels 2-4 together in drop 1: {10 * np.log10(others):.1f} dB")
 print("wrote img/step17_split_spectra.png")
+
+# the design bank as the probe station would record it: coupler hump included, then loopback subtracted
+fig, ax = plt.subplots(2, 1, figsize=(9, 7), sharex=True)
+ax[0].plot(w, lb, "k", label="loopback (two couplers + waveguide)")
+for n in ("d1", "d2", "d3", "d4", "thru"):
+    ax[0].plot(w, dB(S[("b2_in", f"b2_{n}")]), label=f"in to {n}")
+    ax[1].plot(w, dB(S[("b2_in", f"b2_{n}")]) - lb, label=f"in to {n}, minus loopback")
+ax[0].set_ylabel("transmission (dB)"); ax[0].set_ylim(-60, 0); ax[0].legend(fontsize=8, ncol=3, loc="lower right"); ax[0].set_title(f"bank 2 (gap {GAPS[1]:.2f} um) as it would be recorded: couplers included")
+ax[1].set_ylabel("ring bank alone (dB)"); ax[1].set_xlabel("wavelength (nm)"); ax[1].set_ylim(-45, 3); ax[1].legend(fontsize=8, ncol=3, loc="lower right")
+plt.tight_layout(); plt.savefig("img/step17_bank2_recorded.png", dpi=120); print("wrote img/step17_bank2_recorded.png")

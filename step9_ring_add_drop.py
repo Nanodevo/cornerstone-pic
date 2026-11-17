@@ -3,7 +3,7 @@ from cspdk.si220.cband import PDK, cells
 
 PDK.activate()
 
-GAP, RADIUS, LENGTH_X = 0.27, 10.0, 4.0
+GAP, RADIUS, LENGTH_X = 0.31, 10.0, 4.0
 WG_WIDTH = 0.45
 TURN = 3.0             # bend radius of the leads
 VIA_Y = -8.0           # both vias sit on one line 8 um below the bus: the leads cross the bus as 2.5 um strips
@@ -25,7 +25,7 @@ def ring_add_drop_heater(length_y: float, name: str, gap: float = GAP) -> gf.Com
     c.add_port("drop", port=ring.ports["o3"])    # top-left: the caught channel leaves here
     c.add_port("add", port=ring.ports["o4"])     # top-right: unused, stays as a port
     cx = 0.5 * (ring.ports["o1"].dcenter[0] + ring.ports["o2"].dcenter[0])
-    y_bend = WG_WIDTH + GAP + RADIUS
+    y_bend = WG_WIDTH + gap + RADIUS
     x_left = cx - LENGTH_X / 2 - RADIUS
     x_right = cx + LENGTH_X / 2 + RADIUS
 
@@ -35,9 +35,9 @@ def ring_add_drop_heater(length_y: float, name: str, gap: float = GAP) -> gf.Com
     p.append(gf.path.arc(TURN, 90))           # turn north, below the bus
     p.append(gf.path.straight(drop))          # up across the bus onto the left straight
     p.append(gf.path.straight(length_y))
-    p.append(gf.path.arc(RADIUS, -90))        # top-left bend
+    p.append(gf.path.euler(radius=RADIUS, angle=-90, p=0.5, use_eff=True))        # top-left corner, the same Euler shape as the ring's own corner
     p.append(gf.path.straight(LENGTH_X))      # top straight
-    p.append(gf.path.arc(RADIUS, -90))        # top-right bend, heading south
+    p.append(gf.path.euler(radius=RADIUS, angle=-90, p=0.5, use_eff=True))        # top-right bend, heading south
     p.append(gf.path.straight(length_y))      # right straight, heading south
     p.append(gf.path.straight(drop))          # down across the bus
     p.append(gf.path.arc(TURN, 90))           # turn east, below the bus

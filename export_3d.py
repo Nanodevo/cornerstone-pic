@@ -61,7 +61,7 @@ for j, gap in enumerate(GAPS):
     for i in range(4):
         # bank j ring i: bus input of the bank at (j*6*PITCH, 0); ring cx = that + i*PITCH + 12
         cx = j * 6 * PITCH + i * PITCH + 12.0; y_bend = 0.45 + gap + 10.0
-        R, LX, LY = 10.0, 4.0, 0.6 + i * 0.066
+        R, LX, LY = 10.0, 4.0, 0.6 + i * 0.069
         loop = []
         for t in np.linspace(0, 1, 120):
             # parametrise the racetrack counter-clockwise starting at the bottom-left of the bottom straight

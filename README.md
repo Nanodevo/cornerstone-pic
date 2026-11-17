@@ -20,11 +20,21 @@ Both dies sit in one 5.5 x 4.9 mm user cell: `gds/cell0_wdm4_mzi4.gds`, top cell
 
 WDM4, from `step17_predict_split.py`, channel 2:
 
-| Coupling gap | Drop peak | 3 dB width | Neighbour channel |
-|---|---|---|---|
-| 0.22 um | -0.44 dB | 0.275 nm | -18.2 dB |
-| 0.27 um | -0.57 dB | 0.160 nm | -25.5 dB |
-| 0.32 um | -0.99 dB | 0.070 nm | -32.8 dB |
+| Coupling gap | Coupling per pass | Drop peak | 3 dB width | Adjacent channel |
+|---|---|---|---|---|
+| 0.26 um | 13.6 % | -0.61 dB | 0.364 nm | -18.7 dB |
+| 0.31 um | 6.1 % | -0.98 dB | 0.164 nm | -26.0 dB |
+| 0.36 um | 2.7 % | -1.87 dB | 0.076 nm | -33.3 dB |
+
+Ring circumference 75.75 um, free spectral range 7.66 nm, channel spacing 1.60 nm from a 138 nm step in circumference.
+
+**Corrected in November 2026.** The first version modelled the ring's corners as quarter circles. The kit
+builds them as Euler bends, which are longer (16.64 um against 15.71 um per corner) and stay near the bus
+for longer, so the coupling at a given gap was almost twice the modelled value. `wdm_models.py` now reads the
+corner length from the kit's bend and integrates the coupling along its real shape, each bend carries the
+foundry's measured loss per bend, the gaps moved from 0.22 / 0.27 / 0.32 um to 0.26 / 0.31 / 0.36 um, and
+the channel step from 64 nm to 69 nm per side. `step10_*.py` and `step14_predict.py` are the earlier
+single-bank die and are kept as written.
 
 MZI4, from `mzi_predict.py`:
 

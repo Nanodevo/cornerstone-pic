@@ -4,7 +4,7 @@ from cspdk.si220.cband import PDK, cells
 
 PDK.activate()
 
-CHANNEL_STEP_UM = 0.064  # 64nm step up on rings after the first on to have channel spacing of 1.6nm
+CHANNEL_STEP_UM = 0.069  # each ring's two side straights are 69 nm longer than the previous ring's: 138 nm of circumference, 1.6 nm of channel spacing on the 75.7 um ring
 SPACER_UM = 103          # bus length between rings 
 
 def make_bank(gap: float, tag: str) -> gf.Component:
@@ -12,7 +12,7 @@ def make_bank(gap: float, tag: str) -> gf.Component:
     c = gf.Component(f"ring_bank_{tag}")
     previous = None
     for i in range(4):
-        ring = c.add_ref(ring_add_drop_heater(length_y=0.6 + i * CHANNEL_STEP_UM,
+        ring = c.add_ref(ring_add_drop_heater(length_y=round(0.6 + i * CHANNEL_STEP_UM, 3),
                                               name=f"ring_{tag}_ch{i+1}", gap=gap))
         if previous is None:
             c.add_port("o1", port=ring.ports["o1"])
@@ -31,7 +31,7 @@ def make_bank(gap: float, tag: str) -> gf.Component:
 
 
 if __name__ == "__main__":
-    c = make_bank(0.27, "g270")
+    c = make_bank(0.31, "g310")
     print("ports:", [p.name for p in c.ports])
     print("size (um):", round(c.dxsize, 2), "x", round(c.dysize, 2))
     c.write_gds("gds/step10_wdm_bank.gds")

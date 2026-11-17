@@ -10,7 +10,8 @@ from femwell.maxwell.waveguide import compute_modes
 from skfem import Basis, ElementTriP0, MeshTri
 
 N_SI, N_OX, T, WL = 3.4757, 1.4440, 0.220, 1.55
-GAP = 0.27
+GAP = 0.31
+L_EFF = 9.4          # effective coupling length of the ring's coupler, integrated along its Euler corners (wdm_models.l_eff)
 
 def grid(anchors, lo, hi, d0=0.010, n_out=26, n_in=10):
     pts = [np.array([lo, hi]), np.asarray(anchors, float)]
@@ -81,7 +82,7 @@ ax3.axhline(N_OX, color="gray", lw=.8); ax3.set_xlabel("strip width (nm)"); ax3.
 ax4 = fig.add_subplot(2, 3, 4); sm[0].plot_intensity(ax=ax4, colorbar=False); ax4.set_title(f"even supermode, n_eff = {np.real(sm[0].n_eff):.4f}"); ax4.set_xlim(-1.4, 1.4); ax4.set_ylim(-0.7, 0.9)
 ax5 = fig.add_subplot(2, 3, 5); sm[1].plot_intensity(ax=ax5, colorbar=False); ax5.set_title(f"odd supermode, n_eff = {np.real(sm[1].n_eff):.4f}"); ax5.set_xlim(-1.4, 1.4); ax5.set_ylim(-0.7, 0.9)
 ax6 = fig.add_subplot(2, 3, 6); ax6.axis("off")
-ax6.text(0, 0.95, "Bus-ring pair at the design gap (0.27 µm)", fontsize=11, weight="bold", va="top")
-ax6.text(0, 0.80, f"index split Δn = {dn:.5f}\nκ = πΔn/λ = {np.pi*dn/WL:.4f} rad/µm\nfull transfer length π/(2κ) = {np.pi/(2*np.pi*dn/WL):.0f} µm\n\nOver the ring's effective coupling length of 6.7 µm\nthe power crossing per pass is sin²(κ·l_eff) = {100*np.sin(np.pi*dn/WL*6.7)**2:.1f} %.\n\nThe two waveguides are one system with two modes;\nlight launched in the bus is a superposition of both,\nand their phase difference moves power across the gap.", fontsize=9.5, va="top", linespacing=1.5)
+ax6.text(0, 0.95, f"Bus-ring pair at the design gap ({GAP:.2f} µm)", fontsize=11, weight="bold", va="top")
+ax6.text(0, 0.80, f"index split Δn = {dn:.5f}\nκ = πΔn/λ = {np.pi*dn/WL:.4f} rad/µm\nfull transfer length π/(2κ) = {np.pi/(2*np.pi*dn/WL):.0f} µm\n\nOver the ring's effective coupling length of {L_EFF} µm\nthe power crossing per pass is sin²(κ·l_eff) = {100*np.sin(np.pi*dn/WL*L_EFF)**2:.1f} %.\n\nThe two waveguides are one system with two modes;\nlight launched in the bus is a superposition of both,\nand their phase difference moves power across the gap.", fontsize=9.5, va="top", linespacing=1.5)
 fig.suptitle("Mode solver on the WDM4 strip: CORNERSTONE 450 × 220 nm silicon in oxide, femwell finite elements, λ = 1550 nm", fontsize=12)
 plt.tight_layout(); plt.savefig("img/step18_modes.png", dpi=130); print("wrote img/step18_modes.png   [%.0f s]" % (time.time()-t0))

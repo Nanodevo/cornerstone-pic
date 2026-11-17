@@ -14,7 +14,7 @@ def draw(ax, top, xlim, ylim, title):
         col, al = COL[k]
         ax.add_patch(Polygon(p.points, closed=True, facecolor=col, edgecolor="#333" if col == "none" else col, lw=0.6 if col == "none" else 0.2, alpha=al, linestyle="--" if col == "none" else "-"))
     ax.set(xlim=xlim, ylim=ylim, xlabel="x (µm)", ylabel="y (µm)", title=title); ax.set_aspect("equal")
-w = flat("gds/step16_chip_split.gds", "wdm4_split_v1")
+w = flat("gds/step16_chip_split.gds", "wdm4_split_v2")
 fig, ax = plt.subplots(figsize=(14, 7.5))
 draw(ax, w, (-150, 2650), (-650, 900), "WDM4 structures: three ring banks on one bus each, twenty couplers on the 127 µm row, 24 pads in two rows per bank, the label; on the foundry's 5.5 × 4.9 mm user cell")
 fig.tight_layout(); fig.savefig("img/wdm4_die.png", dpi=110); plt.close(fig)

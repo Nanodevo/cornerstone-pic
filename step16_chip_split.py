@@ -1,4 +1,4 @@
-"""Step 16: the die. Three ring banks with a gap split (0.22 / 0.27 / 0.32 um), one fiber
+"""Step 16: the die. Three ring banks with a gap split (0.26 / 0.31 / 0.36 um), one fiber
 row of 20 couplers at 127 um pitch (6 per bank + 2 for the reference loopback), eight pads
 per bank on the south edge, termination tapers on the add ports, die frame and label."""
 import math
@@ -9,14 +9,14 @@ from step16_3wdm_banks import make_bank
 PDK.activate()
 
 PITCH = 127.0                          # fiber array pitch = ring pitch
-GAPS = (0.22, 0.27, 0.32)              # the split: strong / design / weak coupling
+GAPS = (0.26, 0.31, 0.36)              # the split: strong / design / weak coupling
 GC_Y = 300.0                           # coupler row height above the banks
 PAD_SIZE, PAD_Y, PAD_ROW_GAP = 70.0, -300.0, 150.0   # two staggered pad rows on the 127 um ring pitch, every pad straight under its via
 CELL = (5500.0, 4900.0)                # the standard user cell of the 220 nm SOI MPW (design guidelines #45, section 5.1)
 MARGIN = 100.0                         # the structures sit this far from the cell's lower-left corner
 WITH_CELL = True                       # the cell0 assembly turns this off and draws one outline for both dies
 
-chip = gf.Component("wdm4_split_v1")
+chip = gf.Component("wdm4_split_v2")
 couplers, pads, via_ports = [], [], []
 
 for j, gap in enumerate(GAPS):
@@ -69,7 +69,7 @@ gf.routing.route_single(chip, lb[0].ports["o1"], lb[1].ports["o1"], cross_sectio
 couplers += lb
 
 # label below the pad row, then the die sized from the content plus the keep-out
-label = chip.add_ref(cells.text_rectangular(text="EMRE ACAR WDM4 SPLIT V1 2026", size=4.0, layer="WG"))
+label = chip.add_ref(cells.text_rectangular(text="EMRE ACAR WDM4 SPLIT V2 2026", size=4.0, layer="WG"))
 label.dmove((chip.dxmin - label.dxmin, chip.dymin - 60.0 - label.dymax))
 x0, y0 = chip.dxmin - MARGIN, chip.dymin - MARGIN
 CONTENT = (round(chip.dxmax - chip.dxmin + 2 * MARGIN), round(chip.dymax - chip.dymin + 2 * MARGIN))   # the structures' footprint, the floor of the 3D model
